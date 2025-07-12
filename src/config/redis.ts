@@ -1,8 +1,5 @@
 import { createClient } from "redis";
-import dotenv from "dotenv";
 import logger from "../utils/logger";
-
-dotenv.config();
 
 const REDIS_URI = process.env.REDIS_URI || "redis://localhost:6380";
 

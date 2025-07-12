@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendSuccess, sendError } from '../utils/response';
 import logger from '../utils/logger';
 import { generateToken } from "../utils/jwt";
+import User from "../models/user";
 
 export class AuthController {
   async getProfile(req: Request, res: Response): Promise<Response> {
@@ -53,6 +54,21 @@ export class AuthController {
     //  Generate token jwt
     const user = req.user as any;
     const token = generateToken(user);
+
+    // check user is already inserted to mongodb
+    let userMongo = await User.findOne({ googleId: user.id });
+   
+    if (!userMongo) {
+      // save user if user doesn't exist
+      const newUser = new User({
+        googleId: user.id,
+        email: user.email,
+        name: user.name,
+        photo: user.picture,
+      });
+      logger.debug(newUser);
+      await newUser.save();
+    }
 
     // TODO: Redirect to frontend after successful login
     // For now, we will just return the user information

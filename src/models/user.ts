@@ -12,6 +12,9 @@ const UserSchema = new Schema<IUser>({
     email: { type: String, required: true },
     name: { type: String, required: true },
     photo: { type: String },
+},{
+    collection: 'users',
+    versionKey: false,
 });
 
 export default mongoose.model<IUser>('User', UserSchema);

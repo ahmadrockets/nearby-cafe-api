@@ -1,9 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 
 import sessionConfig from './config/session';
 import passport from './config/passport';
@@ -13,10 +15,6 @@ import { validateEnvironment } from './middleware/validation';
 import logger from './utils/logger';
 import { connectMongo } from './config/mongodb';
 import { connectRedis } from "./config/redis";
-
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
