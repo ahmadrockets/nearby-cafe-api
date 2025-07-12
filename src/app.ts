@@ -11,12 +11,17 @@ import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { validateEnvironment } from './middleware/validation';
 import logger from './utils/logger';
+import { connectMongo } from './config/mongodb'; // import koneksi mongo
+
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Connect to MongoDB
+connectMongo();
 
 // Security middleware
 app.use(helmet());

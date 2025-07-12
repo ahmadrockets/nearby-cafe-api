@@ -17,13 +17,7 @@ export class AuthController {
   async logout(req: Request, res: Response): Promise<Response> {
     return new Promise(resolve => {
       const userId = req.user?.id;
-
-      // Delete token from cookie
-      res.clearCookie('token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-      });
-
+      
       req.logout(err => {
         if (err) {
           logger.error('Error during logout', err);
@@ -35,6 +29,13 @@ export class AuthController {
             logger.error('Error destroying session', err);
             return resolve(sendError(res, 'Error destroying session'));
           }
+
+          // Delete token from cookie
+          res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            path: '/'
+          });
 
           logger.info('User logged out successfully', { userId });
           return resolve(sendSuccess(res, 'Logout successful'));
@@ -59,6 +60,7 @@ export class AuthController {
     //  Save token jwt to cookie or response
     const user = req.user as any;
     const token = generateToken(user);
+    
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
