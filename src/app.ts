@@ -11,7 +11,8 @@ import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { validateEnvironment } from './middleware/validation';
 import logger from './utils/logger';
-import { connectMongo } from './config/mongodb'; // import koneksi mongo
+import { connectMongo } from './config/mongodb';
+import { connectRedis } from "./config/redis";
 
 
 // Load environment variables
@@ -19,9 +20,6 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Connect to MongoDB
-connectMongo();
 
 // Security middleware
 app.use(helmet());
@@ -44,7 +42,7 @@ app.use(session(sessionConfig));
 
 // Passport middleware
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 
 // Environment validation
 app.use(validateEnvironment);
@@ -57,9 +55,19 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`);
-    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+const startServer = async (): Promise<void> => {
+    try {
+        await connectMongo();
+        await connectRedis();
 
-export default app;
+        app.listen(PORT, () => {
+            logger.info(`Server running on port ${PORT}`);
+            logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+        });
+    } catch (error) {
+        logger.error('Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+startServer();

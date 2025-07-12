@@ -30,13 +30,6 @@ export class AuthController {
             return resolve(sendError(res, 'Error destroying session'));
           }
 
-          // Delete token from cookie
-          res.clearCookie('token', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            path: '/'
-          });
-
           logger.info('User logged out successfully', { userId });
           return resolve(sendSuccess(res, 'Logout successful'));
         });
@@ -57,18 +50,14 @@ export class AuthController {
   async handleGoogleCallback(req: Request, res: Response): Promise<Response> {
     logger.info('Google OAuth callback successful', { userId: req.user?.id });
     
-    //  Save token jwt to cookie or response
+    //  Generate token jwt
     const user = req.user as any;
     const token = generateToken(user);
-    
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
 
     // TODO: Redirect to frontend after successful login
     // For now, we will just return the user information
+    // const redirectUrl = `${process.env.FRONTEND_URL}?token=${token}`;
+    // res.redirect(redirectUrl)
     return sendSuccess(res, 'Login successful', req.user);
   }
 
