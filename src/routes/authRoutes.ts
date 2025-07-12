@@ -23,7 +23,7 @@ router.get(
 router.get('/profile', authenticateJWT, authController.getProfile);
 
 // Logout routes
-router.post('/logout', authController.logout);
+router.post('/logout', authenticateJWT, authController.logout);
 router.get('/logout', authController.logout);
 
 // Status and failure routes

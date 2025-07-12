@@ -14,7 +14,6 @@ const UserSchema = new Schema<IUser>({
     photo: { type: String },
 },{
     collection: 'users',
-    versionKey: false,
 });
 
 export default mongoose.model<IUser>('User', UserSchema);

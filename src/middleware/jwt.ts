@@ -1,20 +1,33 @@
 import { Request, Response, NextFunction } from "express";
 import { sendError } from "../utils/response";
-import jwt from "jsonwebtoken";
+import { verifyToken } from "../utils/jwt";
+import { isTokenValidInRedis } from "../utils/redis";
+import { User } from '../types/user';
 
-export const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-        return sendError(res, 'Access token is required', undefined, 401);
-    }
-
+export const authenticateJWT = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret');
-        (req as any).user = decoded;
-        return next();
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (!token) {
+            sendError(res, 'Access token is required', undefined, 401);
+        }
+
+        // verify jwt token
+        const decoded = verifyToken(token!);
+        const user: User = decoded
+        req.user=user;
+
+        // Check if token is valid in Redis
+        const isValidInRedis = await isTokenValidInRedis(decoded.id, token!);
+
+        if (!isValidInRedis) {
+            sendError(res, 'Token is not valid or expired', undefined, 401);
+            return;
+        }
+
+        next();
     } catch (err) {
-        return sendError(res, 'Invalid token', undefined, 403);
+        sendError(res, 'Invalid token', undefined, 403);
     }
 }

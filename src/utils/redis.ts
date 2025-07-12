@@ -1,8 +1,10 @@
 import { redisClient } from "../config/redis";
 
+const JWT_EXPIRE = Number(process.env.JWT_EXPIRE) || 900;
+
 export const setTokenRedis = async (userId: string, token:string): Promise<void> => {
     const key = `user:${userId}:token`;
-    await redisClient.setEx(key, 7 * 24 * 60 * 60, token);
+    await redisClient.setEx(key, JWT_EXPIRE, token);
 }
 
 export const getTokenFromRedis = async (userId: string): Promise<string | null> => {

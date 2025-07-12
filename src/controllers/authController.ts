@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendSuccess, sendError } from '../utils/response';
 import logger from '../utils/logger';
 import { generateToken } from "../utils/jwt";
+import { setTokenRedis, deleteTokenFromRedis } from "../utils/redis";
 import User from "../models/user";
 
 export class AuthController {
@@ -16,24 +17,34 @@ export class AuthController {
   }
 
   async logout(req: Request, res: Response): Promise<Response> {
-    return new Promise(resolve => {
-      const userId = req.user?.id;
-      
-      req.logout(err => {
+    const userId = req.user?.id;
+
+    return new Promise((resolve) => {
+      req.logout(async (err) => {
         if (err) {
           logger.error('Error during logout', err);
           return resolve(sendError(res, 'Error during logout'));
         }
 
-        req.session.destroy(err => {
-          if (err) {
-            logger.error('Error destroying session', err);
-            return resolve(sendError(res, 'Error destroying session'));
-          }
+        try {
+          await new Promise<void>((destroyResolve, destroyReject) => {
+            req.session.destroy(async (err) => {
+              if (err) {
+                logger.error('Error destroying session', err);
+                return destroyReject(err);
+              }
+
+              await deleteTokenFromRedis(userId!);
+              destroyResolve();
+            });
+          });
 
           logger.info('User logged out successfully', { userId });
-          return resolve(sendSuccess(res, 'Logout successful'));
-        });
+          resolve(sendSuccess(res, 'Logout successful'));
+        } catch (error) {
+          logger.error('Error destroying session or deleting token', error);
+          resolve(sendError(res, 'Logout failed'));
+        }
       });
     });
   }
@@ -49,32 +60,39 @@ export class AuthController {
   }
 
   async handleGoogleCallback(req: Request, res: Response): Promise<Response> {
-    logger.info('Google OAuth callback successful', { userId: req.user?.id });
-    
-    //  Generate token jwt
-    const user = req.user as any;
-    const token = generateToken(user);
+    try {
+      logger.info('Google OAuth callback successful', { userId: req.user?.id });
+      //  Generate token jwt
+      const user = req.user as any;
+      const token = generateToken(user);
 
-    // check user is already inserted to mongodb
-    let userMongo = await User.findOne({ googleId: user.id });
-   
-    if (!userMongo) {
+      // Insert Token to Redis
+      await setTokenRedis(user.id, token);
+
+      // check user is already inserted to mongodb
+      let userMongo = await User.findOne({ googleId: user.id });
       // save user if user doesn't exist
-      const newUser = new User({
-        googleId: user.id,
-        email: user.email,
-        name: user.name,
-        photo: user.picture,
-      });
-      logger.debug(newUser);
-      await newUser.save();
-    }
+      if (!userMongo) {
+        const newUser = new User({
+          googleId: user.id,
+          email: user.email,
+          name: user.name,
+          photo: user.picture,
+        });
+        await newUser.save();
+      }
 
-    // TODO: Redirect to frontend after successful login
-    // For now, we will just return the user information
-    // const redirectUrl = `${process.env.FRONTEND_URL}?token=${token}`;
-    // res.redirect(redirectUrl)
-    return sendSuccess(res, 'Login successful', req.user);
+      // TODO: Redirect to frontend after successful login
+      // For now, we will just return the user information
+      // const redirectUrl = `${process.env.FRONTEND_URL}?token=${token}`;
+      // res.redirect(redirectUrl)
+      return sendSuccess(res, 'Login successful', {user: req.user, token: token});
+    } catch (error){
+      // redirect to frontend failed
+      // const redirectUrl = `${process.env.FRONTEND_URL}?token=${token}`;
+      // res.redirect(redirectUrl)
+      return sendSuccess(res, 'Login Failed', error);
+    }
   }
 
   async handleAuthFailure(req: Request, res: Response): Promise<Response> {
