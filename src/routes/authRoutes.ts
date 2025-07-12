@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import passport from '../config/passport';
 import { authController } from '../controllers/authController';
-import { isAuthenticated } from '../middleware/auth';
+import { authenticateJWT } from '../middleware/jwt';
 
 const router = Router();
 
@@ -20,7 +20,7 @@ router.get(
 );
 
 // Protected routes
-router.get('/profile', isAuthenticated, authController.getProfile);
+router.get('/profile', authenticateJWT, authController.getProfile);
 
 // Logout routes
 router.post('/logout', authController.logout);

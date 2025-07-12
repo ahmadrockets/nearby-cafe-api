@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendSuccess, sendError } from '../utils/response';
 import logger from '../utils/logger';
+import { generateToken } from "../utils/jwt";
 
 export class AuthController {
   async getProfile(req: Request, res: Response): Promise<Response> {
@@ -16,6 +17,12 @@ export class AuthController {
   async logout(req: Request, res: Response): Promise<Response> {
     return new Promise(resolve => {
       const userId = req.user?.id;
+
+      // Delete token from cookie
+      res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+      });
 
       req.logout(err => {
         if (err) {
@@ -48,6 +55,18 @@ export class AuthController {
 
   async handleGoogleCallback(req: Request, res: Response): Promise<Response> {
     logger.info('Google OAuth callback successful', { userId: req.user?.id });
+    
+    //  Save token jwt to cookie or response
+    const user = req.user as any;
+    const token = generateToken(user);
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    // TODO: Redirect to frontend after successful login
+    // For now, we will just return the user information
     return sendSuccess(res, 'Login successful', req.user);
   }
 

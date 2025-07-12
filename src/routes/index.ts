@@ -14,12 +14,8 @@ router.get('/health', (req, res) => {
 
 // API info
 router.get('/', (req, res) => {
-  sendSuccess(res, 'Google Auth API', {
-    version: '1.0.0',
-    endpoints: {
-      auth: '/auth',
-      health: '/health',
-    },
+  sendSuccess(res, 'Nearby Cafe API', {
+    version: '1.0.0'
   });
 });
 
