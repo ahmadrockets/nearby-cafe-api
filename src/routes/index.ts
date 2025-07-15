@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRoutes from './authRoutes';
+import placeRoute from './placeRoutes';
 import { sendSuccess } from '../utils/response';
 
 const router = Router();
@@ -21,5 +22,8 @@ router.get('/', (req, res) => {
 
 // Auth routes
 router.use('/auth', authRoutes);
+
+// Places routes
+router.use('/places', placeRoute);
 
 export default router;

@@ -59,7 +59,7 @@ export class AuthController {
     });
   }
 
-  async handleGoogleCallback(req: Request, res: Response): Promise<Response> {
+  async handleGoogleCallback(req: Request, res: Response) {
     try {
       logger.info('Google OAuth callback successful', { userId: req.user?.id });
       //  Generate token jwt
@@ -82,16 +82,12 @@ export class AuthController {
         await newUser.save();
       }
 
-      // TODO: Redirect to frontend after successful login
-      // For now, we will just return the user information
-      // const redirectUrl = `${process.env.FRONTEND_URL}?token=${token}`;
-      // res.redirect(redirectUrl)
-      return sendSuccess(res, 'Login successful', {user: req.user, token: token});
+      const redirectUrl = `${process.env.FRONTEND_URL}?token=${token}`;
+      res.redirect(redirectUrl)
     } catch (error){
       // redirect to frontend failed
-      // const redirectUrl = `${process.env.FRONTEND_URL}?token=${token}`;
-      // res.redirect(redirectUrl)
-      return sendSuccess(res, 'Login Failed', error);
+      const redirectUrl = `${process.env.FRONTEND_URL}}`;
+      res.redirect(redirectUrl)
     }
   }
 
