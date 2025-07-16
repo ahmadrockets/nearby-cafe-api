@@ -82,7 +82,7 @@ export class AuthController {
         await newUser.save();
       }
 
-      const redirectUrl = `${process.env.FRONTEND_URL}?token=${token}`;
+      const redirectUrl = `${process.env.FRONTEND_URL}/auth/google/callback?token=${token}`;
       res.redirect(redirectUrl)
     } catch (error){
       // redirect to frontend failed

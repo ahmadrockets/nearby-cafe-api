@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendSuccess, sendError } from '../utils/response';
 import logger from '../utils/logger';
-import { getNearbyPlaces } from "../utils/forsquare";
+import { getNearbyPlaces, getRoutes } from "../utils/forsquare";
 
 export class PlaceController {
     async getNearbyPlaces(req: Request, res: Response): Promise<Response> {
@@ -18,6 +18,23 @@ export class PlaceController {
         } catch (error) {
             logger.error('Error getting nearby places', error);
             return sendError(res, 'Failed to get nearby places');
+        }
+    }
+
+    async getRoutes(req: Request, res: Response): Promise<Response> {
+        try {
+            const { start, end } = req.query;
+            if (!start || !end) {
+                logger.error('Error getting routes, start and end are required');
+                return sendError(res, 'Failed to get routes, start and end are required');
+            }
+
+            logger.info('Routes requested', { userId: req.user?.id });
+            let routes = await getRoutes(String(start), String(end));
+            return sendSuccess(res, 'Routes retrieved successfully', routes);
+        } catch (error) {
+            logger.error('Error getting routes', error);
+            return sendError(res, 'Failed to get routes');
         }
     }
 }
