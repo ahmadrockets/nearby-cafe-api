@@ -71,6 +71,7 @@ export class AuthController {
 
       // check user is already inserted to mongodb
       let userMongo = await User.findOne({ googleId: user.id });
+      
       // save user if user doesn't exist
       if (!userMongo) {
         const newUser = new User({

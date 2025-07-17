@@ -7,6 +7,11 @@ export const setTokenRedis = async (userId: string, token:string): Promise<void>
     await redisClient.setEx(key, JWT_EXPIRE, token);
 }
 
+export const setTokenRedisWithExpired = async (userId: string, value: string, expired: number): Promise<void> => {
+    const key = `user:${userId}:token`;
+    await redisClient.setEx(key, expired, value);
+}
+
 export const getTokenFromRedis = async (userId: string): Promise<string | null> => {
     const key = `user:${userId}:token`;
     return await redisClient.get(key);

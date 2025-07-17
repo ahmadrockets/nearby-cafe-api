@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authRoutes from './authRoutes';
 import placeRoute from './placeRoutes';
+import agentRoute from './agentRoutes';
 import { sendSuccess } from '../utils/response';
 
 const router = Router();
@@ -25,5 +26,8 @@ router.use('/auth', authRoutes);
 
 // Places routes
 router.use('/places', placeRoute);
+
+// Chat routes
+router.use('/chat', agentRoute);
 
 export default router;
