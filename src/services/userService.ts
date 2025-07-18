@@ -1,7 +1,7 @@
 import { User, GoogleProfile } from '../types/user';
 import logger from '../utils/logger';
 
-const users: Map<String, User> = new Map();
+const users: Map<string, User> = new Map();
 
 class UserService {
   async findById(id: string): Promise<User | null> {

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { sendSuccess, sendError } from '../utils/response';
 import logger from '../utils/logger';
 import { placeService } from "../services/placeService";
@@ -13,7 +13,7 @@ export class PlaceController {
             }
 
             logger.info('Nearby Places requested', { userId: req.user?.id });
-            let nearbyPlaces = await placeService.nearbyCafe(Number(lat), Number(lng));
+            const nearbyPlaces = await placeService.nearbyCafe(Number(lat), Number(lng));
             return sendSuccess(res, 'Nearby Places retrieved successfully', nearbyPlaces);
         } catch (error) {
             logger.error('Error getting nearby places', error);
@@ -30,7 +30,7 @@ export class PlaceController {
             }
 
             logger.info('Routes requested', { userId: req.user?.id });
-            let routes = await placeService.routes(String(start), String(end));
+            const routes = await placeService.routes(String(start), String(end));
             return sendSuccess(res, 'Routes retrieved successfully', routes);
         } catch (error) {
             logger.error('Error getting routes', error);

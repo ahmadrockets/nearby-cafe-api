@@ -35,3 +35,31 @@ export async function completions(prompt: OpenAIPrompt) {
     }
     return result;
 }
+
+export async function answers(prompt: OpenAIPrompt) {
+    const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+            { role: "user", content: prompt.content }
+        ],
+        temperature: CONFIG_TEMPERATURE,
+        max_completion_tokens: CONFIG_MAX_COMPLETION_TOKENS
+    });
+
+    const content = response.choices[0]?.message?.content ?? ``;
+    const tokenUsage = response.usage;
+    let result = JSON.parse(`{"content": "${content}"}`)
+    try {
+        result.token_usage = tokenUsage;
+    } catch (e) {
+        result = {
+            content: '',
+            token_usage: {
+                completion_tokens: 0,
+                prompt_tokens: 0,
+                total_tokens: 0,
+            }
+        };
+    }
+    return result;
+}

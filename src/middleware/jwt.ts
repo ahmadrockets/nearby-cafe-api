@@ -3,6 +3,7 @@ import { sendError } from "../utils/response";
 import { verifyToken } from "../utils/jwt";
 import { isTokenValidInRedis } from "../utils/redis";
 import { User } from '../types/user';
+import logger from "../utils/logger";
 
 export const authenticateJWT = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -28,6 +29,7 @@ export const authenticateJWT = async (req: Request, res: Response, next: NextFun
 
         next();
     } catch (err) {
+        logger.error("Invalid token", err)
         sendError(res, 'Invalid token', undefined, 403);
     }
 }

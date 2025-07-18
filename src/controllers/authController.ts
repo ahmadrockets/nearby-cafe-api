@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { sendSuccess, sendError } from '../utils/response';
 import logger from '../utils/logger';
 import { generateToken } from "../utils/jwt";
@@ -70,7 +70,7 @@ export class AuthController {
       await setTokenRedis(user.id, token);
 
       // check user is already inserted to mongodb
-      let userMongo = await User.findOne({ googleId: user.id });
+      const userMongo = await User.findOne({ googleId: user.id });
       
       // save user if user doesn't exist
       if (!userMongo) {
@@ -85,7 +85,8 @@ export class AuthController {
 
       const redirectUrl = `${process.env.FRONTEND_URL}/auth/google/callback?token=${token}`;
       res.redirect(redirectUrl)
-    } catch (error){
+    } catch (err){
+      logger.error("Failed handling google callback", err)
       // redirect to frontend failed
       const redirectUrl = `${process.env.FRONTEND_URL}}`;
       res.redirect(redirectUrl)

@@ -1,4 +1,4 @@
-import session from 'express-session';
+// import session from 'express-session';
 
 const isProduction = process.env.NODE_ENV === 'production';
 

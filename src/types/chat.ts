@@ -7,6 +7,11 @@ export interface IntentChat {
         date: string | null;
         time: string | null;
     };
+    details?: any,
+    start_coordinates?: any,
+    end_coordinates?: any,
+    center_coordinates?: any,
+    answer?: string,
     token_usage: {
         prompt_tokens?: number | null;
         completion_tokens?: number | null;

@@ -1,5 +1,6 @@
 import { searchplaces } from "../utils/map/forsquare";
 import { directions } from "../utils/map/openrouteservice";
+import { getcoordinatebyname } from "../utils/map/openstreetmap";
 
 const FORSQUARE_CAFEE_CATEGORY = '4bf58dd8d48988d1e0931735';
 
@@ -20,6 +21,14 @@ class PlaceService {
             end: end,
         }
         const result = await directions(param)
+        return result;
+    }
+
+    async getcoordinatebyname(location:string) {
+        const param = {
+            q : location,
+        }
+        const result = await getcoordinatebyname(param);
         return result;
     }
 }
