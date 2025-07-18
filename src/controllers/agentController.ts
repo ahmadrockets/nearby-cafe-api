@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendSuccess, sendError } from '../utils/response';
 import logger from '../utils/logger';
-import { normalizeText } from "../utils/normalizetext";
-import { analyzeIntentLLM } from "../utils/openai";
+import { aiService } from "../services/aiService";
 import { IntentChat } from "../types/chat";
 
 export class AgentController {
@@ -14,16 +13,12 @@ export class AgentController {
                 logger.error('Error generate chat, Invalid message format');
                 return sendError(res, 'Invalid message format');
             }
-            const cleanedText = normalizeText(message);
-
-            const result = await analyzeIntentLLM(cleanedText);
+            const result = await aiService.analyzeIntent(message);
             const resIntent = result as IntentChat;
-
             const resData = {
                 intent: resIntent.intent,
                 entities: resIntent.entities
             }
-
             return sendSuccess(res, 'chat retrieved successfully', resData);
         } catch (error) {
             logger.error('Error getting chat', error);

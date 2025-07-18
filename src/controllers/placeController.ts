@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendSuccess, sendError } from '../utils/response';
 import logger from '../utils/logger';
-import { getNearbyPlaces, getRoutes } from "../utils/forsquare";
+import { placeService } from "../services/placeService";
 
 export class PlaceController {
-    async getNearbyPlaces(req: Request, res: Response): Promise<Response> {
+    async getNearbyCafes(req: Request, res: Response): Promise<Response> {
         try {
             const { lat, lng } = req.query;
             if (!lat || !lng) {
@@ -13,7 +13,7 @@ export class PlaceController {
             }
 
             logger.info('Nearby Places requested', { userId: req.user?.id });
-            let nearbyPlaces = await getNearbyPlaces(Number(lat), Number(lng));
+            let nearbyPlaces = await placeService.nearbyCafe(Number(lat), Number(lng));
             return sendSuccess(res, 'Nearby Places retrieved successfully', nearbyPlaces);
         } catch (error) {
             logger.error('Error getting nearby places', error);
@@ -30,7 +30,7 @@ export class PlaceController {
             }
 
             logger.info('Routes requested', { userId: req.user?.id });
-            let routes = await getRoutes(String(start), String(end));
+            let routes = await placeService.routes(String(start), String(end));
             return sendSuccess(res, 'Routes retrieved successfully', routes);
         } catch (error) {
             logger.error('Error getting routes', error);
