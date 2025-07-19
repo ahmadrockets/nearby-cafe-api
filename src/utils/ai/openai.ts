@@ -1,5 +1,6 @@
 import { OpenAI } from 'openai';
 import { OpenAIPrompt } from "./promtGenerator";
+import logger from "../logger";
 
 const CONFIG_TEMPERATURE = 0.3;
 const CONFIG_MAX_COMPLETION_TOKENS = 100;
@@ -23,6 +24,7 @@ export async function completions(prompt: OpenAIPrompt) {
         result              = JSON.parse(content);
         result.token_usage  = tokenUsage;
     } catch (e) {
+        logger.error("failed hit completions to open ai ", e)
         result = {
             intent: 'invalid_intent',
             entities: {},
@@ -52,6 +54,7 @@ export async function answers(prompt: OpenAIPrompt) {
     try {
         result.token_usage = tokenUsage;
     } catch (e) {
+        logger.error("failed get answer hit to open ai ", e)
         result = {
             content: '',
             token_usage: {

@@ -11,7 +11,7 @@ export function generateOpenAIPromt(input: string, current_date: string): OpenAI
     return result;
 }
 
-export function generateOpenAIPromtAnswer(input: string, intent: string): OpenAIPrompt {
+export function generateOpenAIPromtAnswer(input: string): OpenAIPrompt {
     const prompt = `When the user asks something related to maps, directions, or locations, respond as if the map data has already been provided. Do not repeat any data. Instead, respond with a polite follow-up like: “Let me know if you need help with another location.” or “Hope that helps! Anything else I can assist you with?” Keep it short and friendly — no repetition of map info. Answer with one or max two sentences in Bahasa. The question is "${input}"`;
     const result: OpenAIPrompt = {
         role: "user",

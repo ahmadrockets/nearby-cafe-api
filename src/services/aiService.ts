@@ -17,7 +17,7 @@ class AiService{
         }
 
         // analyze AI
-        let result = await completions(prompt);
+        const result = await completions(prompt);
 
         // handling intent
         switch (result.intent) {
@@ -98,8 +98,8 @@ class AiService{
         }
 
         // generate answer 
-        const promptAnswer = generateOpenAIPromtAnswer(cleanedText, result.intent);
-        let answer = await answers(promptAnswer);
+        const promptAnswer = generateOpenAIPromtAnswer(cleanedText);
+        const answer = await answers(promptAnswer);
         result.answer = answer.content;
         
         // cahched response to redis
